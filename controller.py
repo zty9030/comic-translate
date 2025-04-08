@@ -9,7 +9,7 @@ from dataclasses import asdict, is_dataclass
 from PySide6 import QtWidgets
 from PySide6 import QtCore
 from PySide6.QtCore import QCoreApplication, QSettings, QThreadPool
-from PySide6.QtCore import QRectF, Qt
+from PySide6.QtCore import QRectF, QTimer
 from PySide6.QtGui import QColor
 from PySide6.QtGui import QUndoStack, QUndoGroup, QKeySequence, QShortcut
 
@@ -52,7 +52,7 @@ class ComicTranslate(ComicTranslateUI):
     blk_rendered = QtCore.Signal(str, int, object)
 
     def __init__(self, parent=None):
-        super(ComicTranslate, self).__init__(parent)
+        super().__init__(parent)
 
         self.image_files = []
         self.curr_img_idx = -1
@@ -107,6 +107,9 @@ class ComicTranslate(ComicTranslateUI):
             self.outline_width_dropdown,
             self.outline_checkbox
         ]
+        self.auto_save_timer = QTimer(self)
+        self.auto_save_timer.timeout.connect(self.auto_save_proj)
+        self.auto_save_timer.start(20000)  # 20 seconds (20,000 milliseconds)
 
     def connect_ui_elements(self):
         # Browsers
@@ -1172,14 +1175,14 @@ class ComicTranslate(ComicTranslateUI):
         finally:
             self.unblock_text_item_widgets(self.widgets_to_block)
 
-    def set_values_from_highlight(self, item_highlighted = None):
+    def set_values_from_highlight(self, item_highlighted=None):
 
         self.block_text_item_widgets(self.widgets_to_block)
 
         # Attributes
         font_family = item_highlighted['font_family']
         font_size = item_highlighted['font_size']
-        text_color =  item_highlighted['text_color']
+        text_color = item_highlighted['text_color']
 
         outline_color = item_highlighted['outline_color']
         outline_width =  item_highlighted['outline_width']
@@ -1261,7 +1264,6 @@ class ComicTranslate(ComicTranslateUI):
             make(temp_dir, output_path)
         finally:
             # Clean up temp directory
-            import shutil
             shutil.rmtree(temp_dir)
 
     def launch_save_proj_dialog(self):
@@ -1279,8 +1281,8 @@ class ComicTranslate(ComicTranslateUI):
         self.project_file = file_name
         self.loading.setVisible(True)
         self.disable_hbutton_group()
-        self.run_threaded(self.save_project, None, 
-                                self.default_error_handler, self.on_manual_finished, file_name)
+        self.run_threaded(self.save_project, None,
+                          self.default_error_handler, self.on_manual_finished, file_name)
 
     def thread_save_project(self):
         file_name = ""
@@ -1292,7 +1294,12 @@ class ComicTranslate(ComicTranslateUI):
 
         if file_name:
             self.run_save_proj(file_name)
-            
+
+    def auto_save_proj(self):
+        """Automatically save the current project state."""
+        if self.project_file:
+            self.thread_save_project()
+
     def thread_save_as_project(self):
         file_name = self.launch_save_proj_dialog()
         if file_name:
