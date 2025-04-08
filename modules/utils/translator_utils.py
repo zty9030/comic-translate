@@ -85,8 +85,9 @@ def format_translations(blk_list: List[TextBlock], trg_lng_cd: str, upper_case: 
             else:
                 trg_lng_cd = trg_lng_cd
 
-            stanza.download(trg_lng_cd, processors='tokenize')
-            nlp = stanza.Pipeline(trg_lng_cd, processors='tokenize')
+            # stanza.download(trg_lng_cd, processors='tokenize')
+            nlp = stanza.Pipeline(trg_lng_cd, processors='tokenize',
+                                  download_method=stanza.DownloadMethod.REUSE_RESOURCES)
             doc = nlp(translation)
             seg_result = []
             for sentence in doc.sentences:

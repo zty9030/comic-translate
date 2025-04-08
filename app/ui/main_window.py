@@ -481,7 +481,7 @@ class ComicTranslateUI(QtWidgets.QMainWindow):
         self.box_button.clicked.connect(self.toggle_box_tool)
         self.tool_buttons['box'] = self.box_button
 
-        self.delete_button = self.create_tool_button(svg = "trash_line.svg", checkable=False)
+        self.delete_button = self.create_tool_button(svg="trash_line.svg", checkable=False)
         self.delete_button.setToolTip(self.tr("Delete Selected Box"))
 
         self.clear_rectangles_button = self.create_tool_button(svg = "clear-outlined.svg")

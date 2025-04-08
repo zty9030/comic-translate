@@ -11,7 +11,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QCoreApplication, QSettings, QThreadPool
 from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor
-from PySide6.QtGui import QUndoStack, QUndoGroup
+from PySide6.QtGui import QUndoStack, QUndoGroup, QKeySequence, QShortcut
 
 from app.ui.dayu_widgets.clickable_card import ClickMeta
 from app.ui.dayu_widgets.qt import MPixmap
@@ -147,6 +147,9 @@ class ComicTranslate(ComicTranslateUI):
         self.change_all_blocks_size_dec.clicked.connect(lambda: self.change_all_blocks_size(-int(self.change_all_blocks_size_diff.text())))
         self.change_all_blocks_size_inc.clicked.connect(lambda: self.change_all_blocks_size(int(self.change_all_blocks_size_diff.text())))
         self.delete_button.clicked.connect(self.delete_selected_box)
+        
+        delete_shortcut = QShortcut(QKeySequence("Del"), self)
+        delete_shortcut.activated.connect(self.delete_button.click)
 
         # Connect text edit widgets
         self.s_text_edit.textChanged.connect(self.update_text_block)
